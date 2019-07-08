@@ -7,6 +7,18 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
 
+
+function generateRandomString(length) {
+  let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let output = "";
+  for (let i = 0; i < length; i++) {
+    output += characters[Math.floor(Math.random() * characters.length)];
+  }
+  return output;
+}
+// console.log(generateRandomString(6));
+
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -39,9 +51,16 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);
-  res.send("ok");
+  let sURL = generateRandomString(6);
+  urlDatabase[sURL] = req.body.longURL;
+  // console.log(urlDatabase);
+  res.redirect(`/urls/${sURL}`);
 })
+
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(`http://${longURL}`);
+});
 
 
 app.listen(PORT, () => {
@@ -49,13 +68,3 @@ app.listen(PORT, () => {
 });
 
 
-function generateRandomString(length) {
-  let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let output = "";
-  for (let i = 0; i < length; i++) {
-    output += characters[Math.floor(Math.random() * characters.length)];
-  }
-  return output;
-}
-
-console.log(generateRandomString(6));
