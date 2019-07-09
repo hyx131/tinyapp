@@ -38,6 +38,11 @@ app.post("/login", (req, res) => {
   // console.log("cccccccc", req.cookies);
 });
 
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect("/urls");
+});
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -53,6 +58,7 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new", { username: req.cookies["username"] });
+  // inldues the cookie username obj in these pages cuz they include header: thus everytiime the page gets rendered, the header gets rendered as well
 });
 
 app.get("/urls/:shortURL", (req, res) => {

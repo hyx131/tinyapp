@@ -12,12 +12,16 @@
     </div>
     <div>
       <% if (username) { %>
-        <p>User: <%= username %></p>
-      <% } %>
+        <form method="POST" action="/logout">
+          <label for="signout" style="color: lightgrey">User: <%= username %></label>
+          <button type="submit" name="signout" class ="btn btn-outline-secondary">Sign out</button>
+        </form> 
+      <% } else { %>
     <form method="POST" action="/login">
-      <input type="text" name="username" >
+      <input type="text" name="username" placeholder="username">
       <button type="submit">Sign in</button>
     </form> 
+    <% } %>
   </div>
   </nav>
 </header>
