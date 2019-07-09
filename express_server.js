@@ -5,6 +5,9 @@ const PORT = 8080;
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
 app.set("view engine", "ejs");
 
 
@@ -26,6 +29,13 @@ const urlDatabase = {
 
 app.get("/", (request, response) => {
   response.send("Hello!");
+});
+
+app.post("/login", (req, res) => {
+  // console.log("bbbbbbb", req.body.username);
+  res.cookie("username", req.body.username);
+  res.redirect("/urls");
+  // console.log("cccccccc", req.cookies);
 });
 
 app.get("/urls.json", (req, res) => {
