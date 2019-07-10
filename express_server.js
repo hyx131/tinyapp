@@ -9,6 +9,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
+const bcrypt = require('bcrypt');
+
 
 const urlDatabase = {
   "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: ""},
@@ -16,16 +18,10 @@ const urlDatabase = {
 };
 
 const users = {
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
-  },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-  }
+  "BCvho9y8L": 
+   { id: 'BCvho9y8L',
+     email: 'selin.hyx@gmail.com',
+     password: '$2b$10$Eoa8eix2Vz2cUrJGW3ebzOzOE9YCctp6pov.STGYnqT.Fqm5V3hUy' } 
 };
 
 
@@ -43,7 +39,7 @@ const generateUsers = function(email, password) {
   let userInfo = {
     id: id,
     email: email,
-    password: password
+    password: bcrypt.hashSync(password, 10)
   }
   return userInfo;
 };
@@ -102,7 +98,7 @@ app.post("/login", (req, res) => {
   const { email, password } = req.body;
   if (!emailLookup(users, email)) {
     res.status(403).send("<h2 style='color: gray'>Invalid email!</h2>");
-  } else if (users[emailLookup(users, email)].password !== password) {
+  } else if (!bcrypt.compareSync(password, users[emailLookup(users, email)].password)) {
     res.status(403).send("<h2 style='color: gray'>Invalid password!</h2>")
   } else {
   res.cookie("user_id", emailLookup(users, email));
@@ -218,6 +214,7 @@ app.post("/register", (req, res) => {
     users[newUser.id] = newUser;
     res.cookie("user_id", newUser.id);
   }
+  console.log(users);
   res.redirect("/urls");
 });
 
