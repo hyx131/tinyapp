@@ -39,7 +39,12 @@ const emailLookup = function(obj, emailAdress) {
   }
 };
 
-const users = { 
+const urlDatabase = {
+  "b2xVn2": "http://www.lighthouselabs.ca",
+  "9sm5xK": "http://www.google.com"
+};
+
+const users = {
   "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
@@ -57,12 +62,7 @@ const users = {
 };
 
 
-
-
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-};
+// home page & experimenting how express works:
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -77,6 +77,17 @@ app.get("/hello", (req, res) => {
   res.render("hello_world", {greeting: "hello world!"});
 });
 
+
+
+// /login & /logout:
+
+app.get("/login", (req, res) => {
+  let templateVars = {
+    user: users[req.cookies["user_id"]]
+  };
+  res.render("login", templateVars);
+});
+
 app.post("/login", (req, res) => {
   res.cookie("user_id", req.cookies["user_id"]);
   res.redirect("/urls");
@@ -87,12 +98,26 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
+
+
+// /ulrs:
+
 app.get("/urls", (req, res) => {
   let templateVars = { 
     urls: urlDatabase, 
     user: users[req.cookies["user_id"]]};
   res.render("urls_Index", templateVars);
 });
+
+app.post("/urls", (req, res) => {
+  let sURL = generateRandomString(6);
+  urlDatabase[sURL] = req.body.longURL;
+  res.redirect(`/urls/${sURL}`);
+});
+
+
+
+// urls/extensions:
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {  
@@ -108,11 +133,11 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.post("/urls", (req, res) => {
-  let sURL = generateRandomString(6);
+app.post("/urls/:shortURL", (req, res) => {
+  let sURL = req.params.shortURL;
   urlDatabase[sURL] = req.body.longURL;
-  res.redirect(`/urls/${sURL}`);
-})
+  res.redirect("/urls");
+});
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
@@ -124,13 +149,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect(`/urls`);
 });
 
-app.post("/urls/:shortURL", (req, res) => {
-  let sURL = req.params.shortURL;
-  urlDatabase[sURL] = req.body.longURL;
-  res.redirect("/urls");
-});
 
 
+// /register:
 
 app.get("/register", (req, res) => {
   let templateVars = {
