@@ -11,14 +11,38 @@ app.use(cookieParser());
 
 
 
-function generateRandomString(length) {
+const generateRandomString = function(length) {
   let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let output = "";
   for (let i = 0; i < length; i++) {
     output += characters[Math.floor(Math.random() * characters.length)];
   }
   return output;
+};
+
+const generateUsers = function(email, password) {
+  let id = generateRandomString(4);
+  let userInfo = {
+    id: id,
+    email: email,
+    password: password
+  }
+  return userInfo;
+};
+
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
 }
+
 
 
 
@@ -69,7 +93,6 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   let sURL = generateRandomString(6);
   urlDatabase[sURL] = req.body.longURL;
-  console.log(req.body);
   res.redirect(`/urls/${sURL}`);
 })
 
@@ -92,9 +115,15 @@ app.post("/urls/:shortURL", (req, res) => {
 
 
 app.get("/register", (req, res) => {
-  res.render("registration");
+  res.render("registration", { username: req.cookies["username"] });
 });
 
+app.post("/register", (req, res) => {
+  let newUser = generateUsers(req.body.email, req.body.password);
+  users[newUser.id] = newUser;
+  res.cookie("user_id", newUser.id);
+  res.redirect("/urls");
+});
 
 
 
