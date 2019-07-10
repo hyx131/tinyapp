@@ -129,8 +129,13 @@ app.post("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {  
-    user: users[req.cookies["user_id"]]};
-  res.render("urls_new", templateVars);
+    user: users[req.cookies["user_id"]]
+  };
+  if (!req.cookies.user_id) {
+    res.render("login", templateVars);
+  } else {
+    res.render("urls_new", templateVars);
+  }
 });
 
 app.get("/urls/:shortURL", (req, res) => {
