@@ -91,6 +91,9 @@ app.post("/urls/:shortURL", (req, res) => {
 
 
 
+app.get("/register", (req, res) => {
+  res.render("registration");
+});
 
 
 
