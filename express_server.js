@@ -34,9 +34,10 @@ const emailLookup = function(obj, emailAdress) {
   let ids = Object.values(obj);
   for (let user of ids) {
     if (user.email === emailAdress) {
-      return true;
-    }
+      return user.id;
+    } 
   }
+  return false;
 };
 
 const urlDatabase = {
@@ -83,13 +84,20 @@ app.get("/hello", (req, res) => {
 
 app.get("/login", (req, res) => {
   let templateVars = {
-    user: users[req.cookies["user_id"]]
+    user: users[req.cookies.user_id]
   };
   res.render("login", templateVars);
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("user_id", req.cookies["user_id"]);
+  const { email, password } = req.body;
+  if (!emailLookup(users, email)) {
+    res.status(403).send("<h2 style='color: gray'>Invalid email!</h2>");
+  } else if (users[emailLookup(users, email)].password !== password) {
+    res.status(403).send("<h2 style='color: gray'>Invalid password!</h2>")
+  } else {
+  res.cookie("user_id", emailLookup(users, email));
+  }
   res.redirect("/urls");
 });
 
