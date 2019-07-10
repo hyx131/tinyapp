@@ -17,11 +17,9 @@
           <button type="submit" name="signout" class ="btn btn-outline-secondary">Sign out</button>
         </form> 
       <% } else { %>
-    <form method="POST" action="/login">
-      <input type="text" name="username" placeholder="username">
-      <button type="submit">Sign in</button>
-    </form> 
-    <% } %>
+        <a href="/register" style="margin: 0 20px 0 0; color:lightgrey">Register</a>
+        <a href="/login" style="color:lightgrey">Login</a>
+      <% } %>
   </div>
   </nav>
 </header>
