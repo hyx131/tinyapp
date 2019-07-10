@@ -10,6 +10,24 @@ const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
 
+const urlDatabase = {
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: ""},
+  "9sm5xK": {longURL: "http://www.google.com", userID: ""}
+};
+
+const users = {
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+};
+
 
 const generateRandomString = function(length) {
   let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -40,27 +58,18 @@ const emailLookup = function(obj, emailAdress) {
   return false;
 };
 
-const urlDatabase = {
-  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: ""},
-  "9sm5xK": {longURL: "http://www.google.com", userID: ""}
+const urlsForUser = function(id) {
+  let matched = {};
+  for (let keys in urlDatabase) {
+    if (urlDatabase[keys].userID === id) {
+      matched[keys] = urlDatabase[keys];
+    }
+  }
+  return matched;
 };
 
-const users = {
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
-  },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-  },
-  "zvuKv9vDx": {
-    id: "zvuKv9vDx",
-    email: "some@email.com"
-  }
-};
+
+
 
 
 // home page & experimenting how express works:
