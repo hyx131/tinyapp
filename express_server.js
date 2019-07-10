@@ -21,7 +21,7 @@ const generateRandomString = function(length) {
 };
 
 const generateUsers = function(email, password) {
-  let id = generateRandomString(4);
+  let id = generateRandomString(9);
   let userInfo = {
     id: id,
     email: email,
@@ -49,8 +49,12 @@ const users = {
     id: "user2RandomID", 
     email: "user2@example.com", 
     password: "dishwasher-funk"
+  },
+  "zvuKv9vDx": {
+    id: "zvuKv9vDx",
+    email: "some@email.com"
   }
-}
+};
 
 
 
@@ -74,26 +78,31 @@ app.get("/hello", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+  res.cookie("user_id", req.cookies["user_id"]);
   res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
 app.get("/urls", (req, res) => {
-  res.render("urls_Index", { urls: urlDatabase, username: req.cookies["username"]});
+  let templateVars = { 
+    urls: urlDatabase, 
+    user: users[req.cookies["user_id"]]};
+  res.render("urls_Index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new", { username: req.cookies["username"] });
+  let templateVars = {  
+    user: users[req.cookies["user_id"]]};
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   let templateVars = { 
-    username: req.cookies["username"],
+    user: users[req.cookies["user_id"]],
     shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL]};
   res.render("urls_show", templateVars);
@@ -124,16 +133,20 @@ app.post("/urls/:shortURL", (req, res) => {
 
 
 app.get("/register", (req, res) => {
-  res.render("registration", { username: req.cookies["username"] });
+  let templateVars = {
+    user: req.cookies["user_id"],
+  }
+  res.render("registration", templateVars);
 });
 
 app.post("/register", (req, res) => {
-  if (!req.body.email || !req.body.password) {
-    res.status(400).send("Invalid email or password!");
-  } else if (emailLookup(users, req.body.email)) {
-    res.status(400).send("This email has already been used!")
+  const { email, password } = req.body;
+  if (!email || !password) {
+    res.status(400).send("<h2 style='color: gray'>Invalid email or password!</h2>");
+  } else if (emailLookup(users, email)) {
+    res.status(400).send("<h2 style='color: gray'>This email has already been used!</h2>")
   } else {
-    let newUser = generateUsers(req.body.email, req.body.password);
+    let newUser = generateUsers(email, password);
     users[newUser.id] = newUser;
     res.cookie("user_id", newUser.id);
   }

@@ -11,9 +11,9 @@
       </div>
     </div>
     <div>
-      <% if (username) { %>
+      <% if (user) { %>
         <form method="POST" action="/logout">
-          <label for="signout" style="color: lightgrey">User: <%= username %></label>
+          <label for="signout" style="color: lightgrey">User: <%= user.email %></label>
           <button type="submit" name="signout" class ="btn btn-outline-secondary">Sign out</button>
         </form> 
       <% } else { %>
