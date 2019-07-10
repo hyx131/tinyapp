@@ -173,7 +173,11 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => { // reminder: this is the code block for editing the long urls
   let userDatabase = urlsForUser(req.cookies.user_id);
   let sURL = req.params.shortURL;
-  userDatabase[sURL].longURL = req.body.longURL;
+  if (!req.cookies.user_id) {
+    res.send("Cannot edit url!");
+  } else {
+    userDatabase[sURL].longURL = req.body.longURL;
+  }
   res.redirect("/urls");
 });
 
@@ -183,7 +187,12 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+  let userDatabase = urlsForUser(req.cookies.user_id);
+  if (!req.cookies.user_id) {
+    res.send("Cannot delete url!");
+  } else {
+    delete userDatabase[req.params.shortURL];
+ }
   res.redirect(`/urls`);
 });
 
