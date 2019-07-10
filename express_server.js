@@ -6,8 +6,11 @@ app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-const cookieParser = require("cookie-parser");
-app.use(cookieParser());
+const cookieSession = require('cookie-session');
+app.use(cookieSession({
+  name: 'session',
+  keys: ['totoro']
+}));
 
 const bcrypt = require('bcrypt');
 
@@ -20,7 +23,7 @@ const urlDatabase = {
 const users = {
   "BCvho9y8L": 
    { id: 'BCvho9y8L',
-     email: 'selin.hyx@gmail.com',
+     email: 'totoro@email.com',
      password: '$2b$10$Eoa8eix2Vz2cUrJGW3ebzOzOE9YCctp6pov.STGYnqT.Fqm5V3hUy' } 
 };
 
@@ -89,7 +92,7 @@ app.get("/hello", (req, res) => {
 
 app.get("/login", (req, res) => {
   let templateVars = {
-    user: users[req.cookies.user_id]
+    user: users[req.session.user_id]
   };
   res.render("login", templateVars);
 });
@@ -101,13 +104,13 @@ app.post("/login", (req, res) => {
   } else if (!bcrypt.compareSync(password, users[emailLookup(users, email)].password)) {
     res.status(403).send("<h2 style='color: gray'>Invalid password!</h2>")
   } else {
-  res.cookie("user_id", emailLookup(users, email));
+  req.session.user_id = emailLookup(users, email);
   }
   res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/urls");
 });
 
@@ -116,13 +119,13 @@ app.post("/logout", (req, res) => {
 // /ulrs:
 
 app.get("/urls", (req, res) => {
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     res.send("You're not logged in yet! Please login or register an account to modify urls!");
   } else {
-    let userDatabase = urlsForUser(req.cookies.user_id);
+    let userDatabase = urlsForUser(req.session.user_id);
     let templateVars = { 
       urls: userDatabase, 
-      user: users[req.cookies["user_id"]]
+      user: users[req.session.user_id]
     };
     res.render("urls_Index", templateVars);
   }
@@ -130,7 +133,7 @@ app.get("/urls", (req, res) => {
 
 app.post("/urls", (req, res) => {
   let sURL = generateRandomString(6);
-  urlDatabase[sURL] = { longURL: req.body.longURL, userID: req.cookies.user_id };
+  urlDatabase[sURL] = { longURL: req.body.longURL, userID: req.session.user_id };
   res.redirect(`/urls/${sURL}`);
 });
 
@@ -140,9 +143,9 @@ app.post("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {  
-    user: users[req.cookies["user_id"]]
+    user: users[req.session.user_id],
   };
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     res.render("login", templateVars);
   } else {
     res.render("urls_new", templateVars);
@@ -151,14 +154,14 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   let sURL = req.params.shortURL;
-  let userDatabase = urlsForUser(req.cookies.user_id);
-  if (!req.cookies.user_id) {
+  let userDatabase = urlsForUser(req.session.user_id);
+  if (!req.session.user_id) {
     res.send("You're not logged in yet! Please login or register an account to modify urls!");
   } else if (!userDatabase[sURL]) {
     res.send("You don't have access to this url!");
   } else {
     let templateVars = { 
-      user: users[req.cookies["user_id"]],
+      user: users[req.session.user_id],
       shortURL: req.params.shortURL, 
       longURL: userDatabase[req.params.shortURL].longURL
     };
@@ -167,9 +170,9 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => { // reminder: this is the code block for editing the long urls
-  let userDatabase = urlsForUser(req.cookies.user_id);
+  let userDatabase = urlsForUser(req.session.user_id);
   let sURL = req.params.shortURL;
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     res.send("Cannot edit url!");
   } else {
     userDatabase[sURL].longURL = req.body.longURL;
@@ -183,8 +186,8 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  let userDatabase = urlsForUser(req.cookies.user_id);
-  if (!req.cookies.user_id) {
+  let userDatabase = urlsForUser(req.session.user_id);
+  if (!req.session.user_id) {
     res.send("Cannot delete url!");
   } else {
     delete userDatabase[req.params.shortURL];
@@ -198,7 +201,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.get("/register", (req, res) => {
   let templateVars = {
-    user: req.cookies["user_id"],
+    user: req.session.user_id,
   }
   res.render("registration", templateVars);
 });
@@ -212,7 +215,7 @@ app.post("/register", (req, res) => {
   } else {
     let newUser = generateUsers(email, password);
     users[newUser.id] = newUser;
-    res.cookie("user_id", newUser.id);
+    req.session.user_id = newUser.id;
   }
   console.log(users);
   res.redirect("/urls");
