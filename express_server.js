@@ -30,6 +30,15 @@ const generateUsers = function(email, password) {
   return userInfo;
 };
 
+const emailLookup = function(obj, emailAdress) {
+  let ids = Object.values(obj);
+  for (let user of ids) {
+    if (user.email === emailAdress) {
+      return true;
+    }
+  }
+};
+
 const users = { 
   "userRandomID": {
     id: "userRandomID", 
@@ -119,9 +128,15 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  let newUser = generateUsers(req.body.email, req.body.password);
-  users[newUser.id] = newUser;
-  res.cookie("user_id", newUser.id);
+  if (!req.body.email || !req.body.password) {
+    res.status(400).send("Invalid email or password!");
+  } else if (emailLookup(users, req.body.email)) {
+    res.status(400).send("This email has already been used!")
+  } else {
+    let newUser = generateUsers(req.body.email, req.body.password);
+    users[newUser.id] = newUser;
+    res.cookie("user_id", newUser.id);
+  }
   res.redirect("/urls");
 });
 
