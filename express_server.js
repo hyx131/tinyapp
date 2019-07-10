@@ -120,16 +120,21 @@ app.post("/logout", (req, res) => {
 // /ulrs:
 
 app.get("/urls", (req, res) => {
-  let templateVars = { 
-    urls: urlDatabase, 
-    user: users[req.cookies["user_id"]]};
-  res.render("urls_Index", templateVars);
+  if (!req.cookies.user_id) {
+    res.send("You're not logged in yet! Please login or register an account to modify urls!");
+  } else {
+    let userDatabase = urlsForUser(req.cookies.user_id);
+    let templateVars = { 
+      urls: userDatabase, 
+      user: users[req.cookies["user_id"]]
+    };
+    res.render("urls_Index", templateVars);
+  }
 });
 
 app.post("/urls", (req, res) => {
   let sURL = generateRandomString(6);
-  urlDatabase[sURL] = { longURL: req.body.longURL, userID: req.cookies["user_id"] };
-  console.log(urlDatabase);
+  urlDatabase[sURL] = { longURL: req.body.longURL, userID: req.cookies.user_id };
   res.redirect(`/urls/${sURL}`);
 });
 
@@ -149,16 +154,26 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { 
-    user: users[req.cookies["user_id"]],
-    shortURL: req.params.shortURL, 
-    longURL: urlDatabase[req.params.shortURL].longURL};
-  res.render("urls_show", templateVars);
+  let sURL = req.params.shortURL;
+  let userDatabase = urlsForUser(req.cookies.user_id);
+  if (!req.cookies.user_id) {
+    res.send("You're not logged in yet! Please login or register an account to modify urls!");
+  } else if (!userDatabase[sURL]) {
+    res.send("You don't have access to this url!");
+  } else {
+    let templateVars = { 
+      user: users[req.cookies["user_id"]],
+      shortURL: req.params.shortURL, 
+      longURL: userDatabase[req.params.shortURL].longURL
+    };
+    res.render("urls_show", templateVars);
+  }
 });
 
-app.post("/urls/:shortURL", (req, res) => {
+app.post("/urls/:shortURL", (req, res) => { // reminder: this is the code block for editing the long urls
+  let userDatabase = urlsForUser(req.cookies.user_id);
   let sURL = req.params.shortURL;
-  urlDatabase[sURL] = req.body.longURL;
+  userDatabase[sURL].longURL = req.body.longURL;
   res.redirect("/urls");
 });
 
