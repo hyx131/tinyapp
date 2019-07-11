@@ -5,7 +5,7 @@ const emailLookup = function(database, emailAdress) {
       return user.id;
     } 
   }
-  return false;
+  return undefined;
 };
 
 module.exports = { emailLookup };
