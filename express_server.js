@@ -28,6 +28,8 @@ const users = {
 };
 
 
+const { emailLookup } = require("./helper");
+
 const generateRandomString = function(length) {
   let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let output = "";
@@ -47,10 +49,6 @@ const generateUsers = function(email, password) {
   return userInfo;
 };
 
-
-
-const { emailLookup } = require("./helper");
-
 const urlsForUser = function(id) {
   let matched = {};
   for (let keys in urlDatabase) {
@@ -65,7 +63,7 @@ const urlsForUser = function(id) {
 
 
 
-// home page & experimenting how express works:
+// home page:
 
 app.get("/", (req, res) => {
   if (!req.session.user_id) {
@@ -80,8 +78,10 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/hello", (req, res) => {
-  // res.send("<html><body>Hello <b>World</b></body></html>\n");
-  res.render("hello_world", {greeting: "hello world!"});
+  let templateVars = {
+    user: users[req.session.user_id]
+  };
+  res.render("hello_world", templateVars);
 });
 
 
