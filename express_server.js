@@ -1,18 +1,16 @@
 const PORT = 8080;
 const express = require("express");
 const app = express();
-app.set("view engine", "ejs");
-
 const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
-
 const cookieSession = require('cookie-session');
+const bcrypt = require('bcrypt');
+
+app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
   keys: ['totoro']
 }));
-
-const bcrypt = require('bcrypt');
 
 
 const urlDatabase = {
@@ -29,26 +27,10 @@ const users = {
 
 
 const { emailLookup } = require("./helper");
+const { generateRandomString } = require('./helper');
+const { generateUsers } = require('./helper');
 
-const generateRandomString = function(length) {
-  let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let output = "";
-  for (let i = 0; i < length; i++) {
-    output += characters[Math.floor(Math.random() * characters.length)];
-  }
-  return output;
-};
-
-const generateUsers = function(email, password) {
-  let id = generateRandomString(9);
-  let userInfo = {
-    id: id,
-    email: email,
-    password: bcrypt.hashSync(password, 10)
-  }
-  return userInfo;
-};
-
+// function to extract user's urls from the urlDatabase:
 const urlsForUser = function(id) {
   let matched = {};
   for (let keys in urlDatabase) {
@@ -60,10 +42,7 @@ const urlsForUser = function(id) {
 };
 
 
-
-
-
-// home page:
+// hello & home page:
 
 app.get("/", (req, res) => {
   if (!req.session.user_id) {
@@ -73,10 +52,6 @@ app.get("/", (req, res) => {
   }
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
 app.get("/hello", (req, res) => {
   let templateVars = {
     user: users[req.session.user_id]
@@ -84,6 +59,9 @@ app.get("/hello", (req, res) => {
   res.render("hello_world", templateVars);
 });
 
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
 
 
 // /login & /logout:
@@ -113,7 +91,6 @@ app.post("/logout", (req, res) => {
 });
 
 
-
 // /ulrs:
 
 app.get("/urls", (req, res) => {
@@ -134,7 +111,6 @@ app.post("/urls", (req, res) => {
   urlDatabase[sURL] = { longURL: req.body.longURL, userID: req.session.user_id };
   res.redirect(`/urls/${sURL}`);
 });
-
 
 
 // urls/extensions:
@@ -188,11 +164,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   if (!req.session.user_id) {
     res.send("Cannot delete url!");
   } else {
+    console.log(userDatabase[req.params.shortURL]);
     delete userDatabase[req.params.shortURL];
  }
   res.redirect(`/urls`);
 });
-
 
 
 // /register:
