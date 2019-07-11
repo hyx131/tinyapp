@@ -4,6 +4,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
+const methodOverride = require('method-override');
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -11,6 +12,7 @@ app.use(cookieSession({
   name: 'session',
   keys: ['totoro']
 }));
+app.use(methodOverride('_method'));
 
 
 const urlDatabase = {
