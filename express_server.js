@@ -47,15 +47,9 @@ const generateUsers = function(email, password) {
   return userInfo;
 };
 
-const emailLookup = function(obj, emailAdress) {
-  let ids = Object.values(obj);
-  for (let user of ids) {
-    if (user.email === emailAdress) {
-      return user.id;
-    } 
-  }
-  return false;
-};
+
+
+const { emailLookup } = require("./helper");
 
 const urlsForUser = function(id) {
   let matched = {};
