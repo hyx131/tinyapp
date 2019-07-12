@@ -22,6 +22,28 @@
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
+
+    <div>
+        <h3>Total Visits: <%= urlDatabase[shortURL].totalVisit %></h3>
+        <h5 style="color:grey">Unique Visits: <%= urlDatabase[shortURL].uniqueVisit %></h5>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Visitors</th>
+              <th scope="col">Time of Visit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% for(let visitor in urlVisitors) { %>
+              <tr style="color:grey">
+                <td><%= urlVisitors[visitor].id %></td>
+                <td><%= urlVisitors[visitor].time.getUTCDate() + '/' + urlVisitors[visitor].time.getUTCMonth() + '/' + urlVisitors[visitor].time.getUTCFullYear() %></td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+    </div> 
+
   </div>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

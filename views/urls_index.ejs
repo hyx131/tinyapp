@@ -22,6 +22,7 @@
         <tr>
           <th scope="col">Short URL</th>
           <th scope="col">Long URL</th>
+          <th scope="col">Time Created</th>
           <th scope="col">Edit</th>
           <th scope="col">Delete</th>
         </tr>
@@ -31,11 +32,12 @@
           <tr>
             <td><%= url %></td>
             <td><%= urls[url].longURL %></td>
+            <td><%= urls[url].time.getUTCDate() + '/' + urls[url].time.getUTCMonth() + '/' + urls[url].time.getUTCFullYear() %></td>
            <td><form method="GET" action=<%= `/urls/${url}` %>>
               <button type="submit" class="btn btn-outline-warning">Edit</button>
             </form></td>  
-            <td><form method="POST" action=<%= `/urls/${url}/delete?_method=DELETE` %>>
-              <button class="btn btn-outline-danger">Delete</button>
+            <td><form method="POST" action=<%= `/urls/${url}?_method=DELETE` %>>
+              <button class="btn btn-outline-danger" type="submit">Delete</button>
             </form></td>
           </tr>
         <% } %>
